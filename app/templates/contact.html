@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFigAssembler - Contact Us</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='contact-icons.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+</head>
+<body>
+    <header id="app-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="{{ url_for('static', filename='Icon_v1.png') }}" alt="EasyFigAssembler Logo" id="app-logo">
+            <h1>EasyFigAssembler</h1>
+        </div>
+        <div id="global-actions">
+            <a href="{{ url_for('main.index') }}" class="button-like-label">Back to App</a>
+        </div>
+    </header>
+
+    <div id="faq-container">
+        <div class="faq-section">
+            <h3>Pharmaco-Omics Lab</h3>
+            <p><span class="contact-label">Description:</span>The Pharmaco-Omics Lab leverages cutting-edge laboratory, clinical, and computational approaches to understand the molecular mechanisms of human metabolic diseases (in the broad sense), discover clinically relevant biomarkers, and develop personalized treatment strategies.</p>
+            <p>Recently, our lab has developed tools to ease the technical burdens of scientists, allowing us to focus more on science.</p>
+        </div>
+
+        <div class="faq-section">
+            <h3>Team</h3>
+            <div class="contact-role"><span class="material-symbols-outlined">star</span><span class="contact-label">Main Contributor:</span><span class="contact-value">Nguyen Thien Luan</span></div>
+            <div class="contact-role"><span class="material-symbols-outlined">group</span><span class="contact-label">Contributor(s):</span><span class="contact-value">Nguyen Quang Thu</span></div>
+            <div class="contact-role"><span class="material-symbols-outlined">school</span><span class="contact-label">Principal Investigator:</span><span class="contact-value">Nguyen Phuoc Long, M.D., Ph.D.</span></div>
+            <div class="feedback-box"><span class="material-symbols-outlined">mail</span><span><strong>Please send any feedback to:</strong> <a href="mailto:pharmacoomicslab@gmail.com" style="color:#007bff; text-decoration:underline;">pharmacoomicslab@gmail.com</a></span></div>
+        </div>
+    </div>
+
+    <footer id="main-footer">
+        <a href="https://github.com/Pharmaco-OmicsLab" target="_blank" rel="noopener noreferrer">
+            Empowered by Pharmaco-Omics Lab – Omics for Personalized Medicine
+        </a>
+        <span> | </span>
+        <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>
+        <span> | </span>
+        <a href="{{ url_for('main.terms') }}">Terms of Service</a>
+        <span> | </span>
+        <a href="{{ url_for('main.contact') }}">Contact Us</a>
+    </footer>
+</body>
+</html>

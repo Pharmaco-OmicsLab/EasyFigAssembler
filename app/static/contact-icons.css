@@ -1,0 +1,67 @@
+/* Contact Page UI Enhancements */
+
+.faq-section {
+    max-width: 700px;
+    margin: 0 auto 40px auto;
+    padding: 32px 32px 24px 32px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(44,62,80,0.07);
+    border: 1px solid #e0e0e0;
+}
+
+.faq-section h3 {
+    font-size: 1.35rem;
+    margin-bottom: 12px;
+    color: #007bff;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.contact-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-right: 6px;
+}
+
+.contact-value {
+    color: #007bff;
+    font-weight: 500;
+}
+
+.contact-role {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+
+.contact-role .material-symbols-outlined {
+    font-size: 20px;
+    color: #6c757d;
+}
+
+.feedback-box {
+    background: #f1f8ff;
+    border-left: 4px solid #007bff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-top: 18px;
+    margin-bottom: 0;
+    font-size: 1rem;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.feedback-box .material-symbols-outlined {
+    color: #007bff;
+    font-size: 22px;
+}
+
+@media (max-width: 800px) {
+    .faq-section {
+        padding: 18px 8px 14px 8px;
+    }
+}

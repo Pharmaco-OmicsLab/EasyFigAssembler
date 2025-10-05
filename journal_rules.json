@@ -1,0 +1,30 @@
+{
+    "Cell": {
+        "singleColumnWidth_mm": 85,
+        "doubleColumnWidth_mm": 174,
+        "maxHeight_mm": 225,
+        "dpi_halftone": 300,
+        "font_min_pt": 6
+    },
+    "Nature": {
+        "singleColumnWidth_mm": 90,
+        "doubleColumnWidth_mm": 180,
+        "maxHeight_mm": 170,
+        "dpi_halftone": 300,
+        "font_min_pt": 7
+    },
+    "Science": {
+        "singleColumnWidth_mm": 57,
+        "doubleColumnWidth_mm": 121,
+        "maxHeight_mm": 230,
+        "dpi_halftone": 300,
+        "font_min_pt": 5
+    },
+    "Default": {
+        "singleColumnWidth_mm": 90,
+        "doubleColumnWidth_mm": 180,
+        "maxHeight_mm": 240,
+        "dpi_halftone": 300,
+        "font_min_pt": 7
+    }
+}
