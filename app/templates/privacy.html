@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFigAssembler - Privacy Policy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+</head>
+<body>
+    <header id="app-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="{{ url_for('static', filename='Icon_v1.png') }}" alt="EasyFigAssembler Logo" id="app-logo">
+            <h1>EasyFigAssembler</h1>
+        </div>
+        <div id="global-actions">
+            <a href="{{ url_for('main.index') }}" class="button-like-label">Back to App</a>
+        </div>
+    </header>
+
+    <div id="faq-container">
+        <h2>Privacy Policy</h2>
+        <div class="faq-item">
+            <p>At EasyFigAssembler, we are committed to protecting your privacy. We do not store any user data unless you explicitly choose to do so through advanced features like logging in or subscribing to premium services. All figure panel data and project states are processed locally in your browser and are not transmitted to our servers unless you opt for cloud storage or specific advanced features that require it.</p>
+        </div>
+    </div>
+
+    <footer id="main-footer">
+        <a href="https://github.com/Pharmaco-OmicsLab" target="_blank" rel="noopener noreferrer">
+            Empowered by Pharmaco-Omics Lab – Omics for Personalized Medicine
+        </a>
+        <span> | </span>
+        <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>
+        <span> | </span>
+        <a href="{{ url_for('main.terms') }}">Terms of Service</a>
+        <span> | </span>
+        <a href="{{ url_for('main.contact') }}">Contact Us</a>
+    </footer>
+</body>
+</html>

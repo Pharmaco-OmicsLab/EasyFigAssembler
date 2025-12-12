@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFigAssembler - FAQ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+</head>
+<body>
+    <header id="app-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="{{ url_for('static', filename='Icon_v1.png') }}" alt="EasyFigAssembler Logo" id="app-logo">
+            <h1>EasyFigAssembler</h1>
+        </div>
+        <div id="global-actions">
+            <a href="{{ url_for('main.index') }}" class="button-like-label">Back to App</a>
+        </div>
+    </header>
+
+    <div id="faq-container">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3>1. What is EasyFigAssembler?</h3>
+            <p>EasyFigAssembler is a web application designed to help scientific researchers create publication-quality composite figures by assembling individual image panels. It automates layouts, offers extensive customization, provides quality-checking feedback, and allows for high-resolution exports.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>2. How do I upload my figure panels?</h3>
+            <p>You can upload your image files (including .tiff) by dragging and dropping them into the designated "Drag & Drop Figure Panels Here or Click to Upload" area, or by clicking the area to open a file selector. If panels are already present, a "Add/Replace Panels" button will appear.</p>
+            </div>
+
+        <div class="faq-item">
+            <h3>3. What layout options are available?</h3>
+            <p>The app provides several layout options: Vertical Stack, 2x2 Grid, 3x3 Grid, and a 4xN Grid. There's also an "auto" mode that intelligently selects a default layout based on the number of panels. Grid layouts support flexible spanning, allowing individual panels to span multiple columns and rows.</p>
+            </div>
+
+        <div class="faq-item">
+            <h3>4. How can I customize panel labels and spacing?</h3>
+            <p>You can choose from preset label styles (e.g., a, b, c or A, B, C) or select a "Custom..." option. Label position (Top or Left), Font Family, Font Size, and Font Weight can also be adjusted. A slider allows for dynamic adjustment of spacing between panels.</p>
+            </div>
+
+        <div class="faq-item">
+            <h3>5. What editing capabilities does the app offer for individual panels?</h3>
+            <p>Double-clicking any panel on the main canvas opens a dedicated editing modal. Within this modal, you can make non-destructive adjustments like Brightness, Contrast, and Rotation, or toggle a Greyscale filter. You can also define a new crop area. Crucially, you can specify the Column Span and Row Span for each panel to create complex grid layouts. A toolbar allows adding Text, Arrows, and Rectangles, which can be styled and repositioned.</p>
+            </div>
+
+        <div class="faq-item">
+            <h3>6. How does the Quality Advisor work?</h3>
+            <p>The Quality Advisor provides feedback by checking the effective DPI of each panel and warns if it's too low. It also performs a colorblind-friendliness check for problematic red/green usage and displays a text size guide based on the selected journal's minimum font requirement.</p>
+            </div>
+
+        <div class="faq-item">
+            <h3>7. What are the export options?</h3>
+            <p>You can export the final composite figure at high resolution as TIFF, PDF, PNG, and JPEG. The export process uses an off-screen canvas to ensure high-quality output based on a user-selected DPI.</p>
+            </div>
+
+        <div class="faq-item">
+            <h3>8. Can I save my project and work on multiple figures?</h3>
+            <p>Yes, users can save their entire multi-figure project to a local .json file and load it back into the app. A tab-based interface allows working on and switching between multiple figures (Figure 1, Figure 2, etc.) within a single project.</p>
+            </div>
+
+        <div class="faq-item">
+            <h3>9. Is there Undo/Redo functionality?</h3>
+            <p>Yes, Undo and Redo buttons are available above the main canvas to manage your changes.</p>
+            </div>
+
+    </div>
+
+    <footer id="main-footer">
+        <a href="https://github.com/Pharmaco-OmicsLab" target="_blank" rel="noopener noreferrer">
+            Empowered by Pharmaco-Omics Lab – Omics for Personalized Medicine
+        </a>
+        <span> | </span>
+        <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>
+        <span> | </span>
+        <a href="{{ url_for('main.terms') }}">Terms of Service</a>
+        <span> | </span>
+        <a href="{{ url_for('main.contact') }}">Contact Us</a>
+    </footer>
+</body>
+</html>

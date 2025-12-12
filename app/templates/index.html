@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figure Assembler</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+    <script src="https://cdn.jsdelivr.net/npm/tiff.js@1.0.0/tiff.min.js"></script>
+    <script>
+        window.app_prefix = "{{ url_for('main.index') }}".replace(/\/$/, '');
+        window.STATIC_BASE = "{{ url_for('static', filename='') }}".replace(/\/$/, '');
+        // New: unified APP_BASE for API & other root-relative calls
+        window.APP_BASE = window.STATIC_BASE.replace(/\/static$/, '');
+        console.log('STATIC_BASE =', window.STATIC_BASE, 'APP_BASE =', window.APP_BASE);
+    </script>
+</head>
+<body data-app-prefix="{{ url_for('main.index') }}">
+    <header id="app-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="{{ url_for('static', filename='Icon_v1.png') }}" alt="EasyFigAssembler Logo" id="app-logo">
+            <h1>EasyFigAssembler</h1>
+        </div>
+        <div id="global-actions">
+            <a href="{{ url_for('main.faq') }}" class="button-like-label">FAQ</a>
+            <a href="https://pharmaco-omicslab.shinyapps.io/EasyPubPlot/" target="_blank" rel="noopener noreferrer" class="button-like-label">EasyPubPlot</a>
+            <button id="save-project-btn" class="btn btn-teal">Save Project</button>
+            <button id="load-project-btn" class="btn btn-teal" onclick="document.getElementById('load-project-input').click()">Load Project</button>
+            <input type="file" id="load-project-input" accept=".json" style="display: none;">
+        </div>
+    </header>
+
+    <div id="demo-section">
+        <h3>Try Demo Examples</h3>
+        <div id="demo-buttons">
+            <button id="demo-btn-1" class="demo-button">Demo 1: Basic Layout</button>
+            <button id="demo-btn-2" class="demo-button">Demo 2: Complex Grid</button>
+            <button id="demo-btn-3" class="demo-button">Demo 3: Multi-Panel</button>
+        </div>
+        <p class="demo-description">Load sample panels to explore EasyFigAssembler's features</p>
+    </div>
+
+    <div id="main-app-container">
+        <div id="main-content">
+
+            <div id="figure-tabs-container">
+                <div id="figure-tabs"></div>
+                <button id="add-figure-btn">+</button>
+            </div>
+
+            <div id="upload-area" role="button" tabindex="0" aria-label="Upload image files">
+                <p>Drag & Drop PNG, JPEG, TIFF, or SVG (or click to upload)</p>
+                <input type="file" id="file-input" multiple accept=".png,.jpg,.jpeg,.tif,.tiff,.svg" style="display: none;" aria-label="Select image files">
+            </div>
+
+            <button id="add-panels-btn" class="hidden">Add/Replace Panels</button>
+
+            <div style="text-align: center; margin: 10px 0;">
+                <button id="live-preview-btn" class="btn btn-teal" title="Toggle Live Preview Window">
+                    <span class="material-symbols-outlined">preview</span>
+                    Live Preview
+                </button>
+            </div>
+
+            <div id="canvas-actions">
+                <button id="undo-btn" class="btn btn-purple" disabled>Undo</button>
+                <button id="redo-btn" class="btn btn-purple" disabled>Redo</button>
+                <button id="reset-all-btn" class="btn btn-red">Reset all changes</button>
+                <div id="zoom-controls">
+                    <button id="zoom-out-btn" class="btn btn-blue">Zoom Out</button>
+                    <span id="zoom-level">100%</span>
+                    <button id="zoom-in-btn" class="btn btn-blue">Zoom In</button>
+                    <button id="zoom-reset-btn" class="btn btn-blue">Reset</button>
+                    <button id="fit-to-page-btn" class="btn btn-blue">Fit to Page</button>
+                </div>
+                <div id="container-controls">
+                    <div class="container-size-controls">
+                        <label for="container-size-select">Container Size:</label>
+                        <select id="container-size-select">
+                            <option value="auto">Auto (Smart)</option>
+                            <option value="small">Small (40% of screen)</option>
+                            <option value="medium">Medium (60% of screen)</option>
+                            <option value="large">Large (80% of screen)</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div id="custom-size-controls" class="hidden">
+                        <div class="custom-size-inputs">
+                            <label for="custom-width-input">Width (px):</label>
+                            <input type="number" id="custom-width-input" min="200" max="2000" value="800">
+                            <label for="custom-height-input">Height (px):</label>
+                            <input type="number" id="custom-height-input" min="200" max="2000" value="600">
+                            <button id="apply-custom-size-btn" class="btn btn-secondary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="figure-canvas-container" role="img" aria-label="Figure preview">
+                <div id="canvas-wrapper">
+                    <canvas id="figure-canvas" aria-label="Interactive figure canvas"></canvas>
+                </div>
+            </div>
+
+            <div class="main-content-card" id="panel-management-main">
+                <div class="card-header">
+                    <h3>Panel Management</h3>
+                    <span class="collapse-arrow material-symbols-outlined">expand_more</span>
+                </div>
+                <div class="card-content">
+                    <p class="small-text">Drag panels to reorder. Right-click on canvas for more options.</p>
+                    <ul id="panel-list-container-main">
+                        <!-- Panel list items will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+
+            <div class="main-content-card" id="figure-caption-card">
+                <div class="card-header">
+                    <h3>Store/Save and Edit Your Figure Legend</h3>
+                    <span class="collapse-arrow material-symbols-outlined">expand_more</span>
+                </div>
+                <div class="card-content">
+                    <textarea id="figure-caption-editor" placeholder="Enter figure caption or legend here..." rows="4"></textarea>
+                    <div class="figure-caption-actions">
+                        <button id="save-caption-btn" class="btn btn-green">Save Legend</button>
+                        <button id="clear-caption-btn" class="btn btn-red">Clear Legend</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-card" id="quality-feedback">
+                <div class="card-header">
+                    <h3>Quality Advisor</h3>
+                    <span class="collapse-arrow material-symbols-outlined">expand_more</span>
+                </div>
+                <div class="card-content">
+                    <ul id="feedback-list">
+                        <li>Upload panels to see quality feedback.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="sticky-sidebar-wrapper">
+            <div id="sidebar-controls">
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3>Dimensions & Journal</h3>
+                        <span class="collapse-arrow material-symbols-outlined">expand_more</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="control-item">
+                            <label for="journal-select">Target Journal:</label>
+                            <select id="journal-select">
+                                </select>
+                        </div>
+                        <div class="control-item">
+                            <label for="target-width-input">Target Width (mm):</label>
+                            <div class="input-with-button">
+                                <input type="number" id="target-width-input" placeholder="e.g., 120">
+                                <button id="apply-dimension-btn">Apply</button>
+                            </div>
+                        </div>
+                        <div id="journal-info-display" class="journal-info">
+                            <!-- Journal information will be populated here -->
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3>Layout</h3>
+                        <span class="collapse-arrow material-symbols-outlined">expand_more</span>
+                    </div>
+                    <div class="card-content">
+                        <div id="layout-options">
+                            <button class="layout-btn smart-layout-btn" data-layout="auto">Smart Layout</button>
+                            <button class="layout-btn" data-layout="stack">1 x N</button>
+                            <button class="layout-btn" data-layout="grid2x2">2 x N</button>
+                            <button class="layout-btn" data-layout="grid3x3">3 x N</button>
+                            <button class="layout-btn" data-layout="grid4xn">4 x N</button>
+                            <button class="layout-btn" data-layout="grid5xn">5 x N</button>
+                            <button class="layout-btn" data-layout="grid6xn">6 x N</button>
+                            <button class="layout-btn" data-layout="custom">Custom Layout</button>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3>Appearance</h3>
+                        <span class="collapse-arrow material-symbols-outlined">expand_more</span>
+                    </div>
+                    <div class="card-content">
+    
+                        <div class="control-item spacing-control">
+                            <label for="spacing-slider"><strong>Panel Spacing</strong></label>
+                            <p style="font-size: 13px; color: #6c757d; margin-bottom: 12px;">Adjust the space between panels</p>
+    
+                            <!-- Numeric stepper controls -->
+                            <div class="spacing-input-group">
+                              <button
+                                type="button"
+                                class="btn-sm"
+                                id="spacing-decrease"
+                                aria-label="Decrease spacing"
+                              >–</button>
+                              <input
+                                type="number"
+                                id="spacing-number"
+                                min="0"
+                                max="50"
+                                step="1"
+                                value="10"
+                                aria-label="Panel spacing in pixels"
+                              >
+                              <button
+                                type="button"
+                                class="btn-sm"
+                                id="spacing-increase"
+                                aria-label="Increase spacing"
+                              >+</button>
+                            </div>
+    
+                            <!-- Current value display -->
+                            <div class="spacing-current-value">Current: <span id="spacing-current-display">10px</span></div>
+    
+                            <!-- Enhanced slider -->
+                            <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+                              <span style="font-size: 12px; color: #6c757d;">Compact</span>
+                              <input
+                                type="range"
+                                id="spacing-slider"
+                                min="0"
+                                max="50"
+                                value="10"
+                                aria-describedby="spacing-help"
+                              >
+                              <span style="font-size: 12px; color: #6c757d;">Spacious</span>
+                            </div>
+    
+                            <!-- Inline preview -->
+                            <div class="spacing-preview-inline" aria-hidden="true">
+                              <div class="block"></div>
+                              <div class="separator"></div>
+                              <div class="block"></div>
+                            </div>
+    
+                            <!-- Control buttons -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
+                              <div style="display: flex; align-items: center;">
+                                <button
+                                  type="button"
+                                  class="preset-btn"
+                                  data-value="4"
+                                  title="Tight spacing"
+                                >Tight</button>
+                                <button
+                                  type="button"
+                                  class="preset-btn"
+                                  data-value="20"
+                                  title="Spacious layout"
+                                >Spacious</button>
+                              </div>
+                              <button
+                                type="button"
+                                class="btn-link"
+                                id="spacing-reset"
+                                aria-label="Reset spacing to default"
+                                title="Reset to 10px"
+                              >Reset</button>
+                            </div>
+    
+                            <p id="spacing-help" class="small-text">
+                              Use the slider or buttons to adjust panel spacing
+                            </p>
+                          </div>
+    
+                        <div class="control-item">
+                            <label>
+                                <input type="checkbox" id="maintain-aspect-ratio" checked>
+                                Maintain aspect ratios in grid layouts
+                            </label>
+                        </div>
+    
+                        <!-- Alignment Grid Controls -->
+                        <div class="control-item">
+                            <h4 style="margin-bottom: 10px; color: #333; font-size: 14px;">Alignment Grid</h4>
+                            <div class="control-item grid-main-control">
+                                <label class="grid-main-label">
+                                    <input type="checkbox" id="show-grid-checkbox" checked>
+                                    Show Grid
+                                </label>
+                            </div>
+                            <div class="grid-sub-controls" id="grid-sub-controls">
+                                <div class="control-item grid-sub-control">
+                                    <label class="grid-sub-label">
+                                        <input type="checkbox" id="show-panel-grid-checkbox" checked>
+                                        Show Panel Grid
+                                    </label>
+                                </div>
+                                <div class="control-item grid-sub-control">
+                                    <label class="grid-sub-label">
+                                        <input type="checkbox" id="show-label-grid-checkbox" checked>
+                                        Show Label Grid
+                                    </label>
+                                </div>
+                                <div class="grid-options">
+                                    <div class="control-item">
+                                        <label for="grid-color-input">Grid Line Color:</label>
+                                        <input type="color" id="grid-color-input" value="#000000">
+                                    </div>
+                                    <div class="control-item">
+                                        <label for="grid-type-select">Grid Type:</label>
+                                        <select id="grid-type-select">
+                                            <option value="solid">Solid</option>
+                                            <option value="dashed" selected>Dashed</option>
+                                            <option value="dotted">Dotted</option>
+                                        </select>
+                                    </div>
+                                    <div class="control-item">
+                                        <label for="grid-thickness-input">Grid Line Thickness:</label>
+                                        <input type="number" id="grid-thickness-input" min="1" max="5" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="control-item">
+                            <label for="label-style">Label Style:</label>
+                            <select id="label-style">
+                                <option value="abc">a, b, c</option>
+                                <option value="ABC">A, B, C</option>
+                                <option value="ABC_paren">A), B), C)</option>
+                                <option value="ABC_period">A., B., C.</option>
+                                <option value="custom">Custom...</option>
+                            </select>
+                        </div>
+                        <div id="custom-labels" style="display: none;"></div>
+                        <div class="control-item">
+                            <label for="label-position">Label Position:</label>
+                            <select id="label-position">
+                                <option value="top">Top</option>
+                                <option value="left">Left</option>
+                            </select>
+                        </div>
+    
+                        <!-- New label spacing control -->
+                        <div class="control-item label-spacing-control">
+                            <label>Label to Panel Spacing: <span id="label-spacing-value">0</span>px</label>
+                            <p style="font-size: 13px; color: #6c757d; margin-bottom: 12px;">Adjust the distance between labels and panels</p>
+    
+                            <div class="label-spacing-input-group">
+                                <button type="button" class="btn-sm" id="label-spacing-decrease" aria-label="Decrease label spacing">–</button>
+                                <input type="number" id="label-spacing-number" min="0" max="30" step="1" value="0" aria-label="Label spacing in pixels">
+                                <button type="button" class="btn-sm" id="label-spacing-increase" aria-label="Increase label spacing">+</button>
+                            </div>
+                        </div>
+                        <div class="control-item">
+                            <label for="label-font-family">Label Font:</label>
+                            <select id="label-font-family">
+                                <option value="Arial">Arial</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Helvetica">Helvetica</option>
+                            </select>
+                        </div>
+                         <div class="control-item">
+                            <label for="label-font-size">Label Size (pt):</label>
+                            <input type="number" id="label-font-size" min="5" max="72" value="7">
+                        </div>
+                         <div class="control-item">
+                            <label for="label-font-weight">Label Weight:</label>
+                            <select id="label-font-weight">
+                                <option value="bold">Bold</option>
+                                <option value="normal">Regular</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+    
+    
+    
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3>Export Figure</h3>
+                        <span class="collapse-arrow material-symbols-outlined">expand_more</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="control-item">
+                            <label for="export-dpi-select">Export Resolution:</label>
+                            <select id="export-dpi-select">
+                                <option value="300">300 DPI</option>
+                                <option value="600" selected>600 DPI</option>
+                                <option value="1200">1200 DPI</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <input type="number" id="export-dpi-custom" placeholder="50-1200 DPI" min="50" max="1200" style="display: none; width: 100px; margin-top: 5px;">
+                            <div id="dpi-validation-message" class="validation-message" style="display: none; color: #e74c3c; font-size: 12px; margin-top: 5px;"></div>
+                            <div class="dpi-info" style="font-size: 11px; color: #6c757d; margin-top: 3px; font-style: italic;">
+                                Maximum DPI: 1200 (for optimal performance and memory usage)
+                            </div>
+                        </div>
+                        <div id="export-options-grid">
+                            <div class="export-option-card" data-format="tiff">
+                                <span class="material-symbols-outlined icon-tiff">photo_library</span>
+                                <div class="export-text">
+                                    <div class="export-title">TIFF</div>
+                                    <div class="export-desc">Publication quality</div>
+                                </div>
+                            </div>
+                            <div class="export-option-card" data-format="pdf">
+                                <span class="material-symbols-outlined icon-pdf">picture_as_pdf</span>
+                                <div class="export-text">
+                                    <div class="export-title">PDF</div>
+                                    <div class="export-desc">Vector quality</div>
+                                </div>
+                            </div>
+                            <div class="export-option-card" data-format="png">
+                                <span class="material-symbols-outlined icon-png">image</span>
+                                <div class="export-text">
+                                    <div class="export-title">PNG</div>
+                                    <div class="export-desc">Web quality</div>
+                                </div>
+                            </div>
+                            <div class="export-option-card" data-format="jpeg">
+                                <span class="material-symbols-outlined icon-jpeg">wallpaper</span>
+                                <div class="export-text">
+                                    <div class="export-title">JPEG</div>
+                                    <div class="export-desc">Smallest size</div>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <!-- New dedicated export button -->
+                        <button id="export-figure-btn" disabled>Export Figure</button>
+                    </div>
+                </div>
+    
+                <div class="sidebar-card hidden collapsed" id="individual-export-container">
+                    <div class="card-header">
+                        <h3>Download Individual Panels</h3>
+                        <span class="collapse-arrow material-symbols-outlined">expand_more</span>
+                    </div>
+                    <div class="card-content">
+                    </div>
+                </div>
+    
+            </div>
+    
+            <!-- Mini Preview Canvas - Draggable floating window -->
+           
+        </div>
+    </div>
+
+    <!-- Floating Live Preview Window -->
+    <div id="floating-preview-window" class="floating-preview hidden">
+        <div class="floating-preview-header" id="floating-preview-header">
+            <h4>Live Preview <span class="material-symbols-outlined" style="font-size: 16px; opacity: 0.6; margin-left: 5px;">drag_indicator</span></h4>
+            <button id="floating-preview-close-btn" class="floating-preview-close" aria-label="Close preview window">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="floating-preview-content">
+            <canvas id="floating-preview-canvas" width="400" height="300"></canvas>
+            <div class="floating-preview-info">
+                Live preview of your figure layout
+            </div>
+        </div>
+        <div class="floating-preview-resize-handle" id="floating-preview-resize-handle" title="Resize preview window"></div>
+    </div>
+
+    <!-- NEW: Context Menu -->
+    <div id="panel-context-menu" class="context-menu">
+        <div class="context-menu-item" data-action="edit">Edit Panel</div>
+        <div class="context-menu-item" data-action="delete">Delete Panel</div>
+        <div class="context-menu-item" data-action="bring-front">Bring to Front</div>
+        <div class="context-menu-item" data-action="send-back">Send to Back</div>
+    </div>
+
+    <footer id="main-footer">
+        <a href="https://github.com/Pharmaco-OmicsLab" target="_blank" rel="noopener noreferrer">
+            Empowered by Pharmaco-Omics Lab – Omics for Personalized Medicine
+        </a>
+        <span> | </span>
+        <a href="{{ url_for('main.privacy') }}">Privacy Policy</a>
+        <span> | </span>
+        <a href="{{ url_for('main.terms') }}">Terms of Service</a>
+        <span> | </span>
+        <a href="{{ url_for('main.contact') }}">Contact Us</a>
+    </footer>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal-overlay hidden">
+        <div class="feedback-modal-content">
+            <div class="feedback-header">
+                <h3>How was your experience?</h3>
+                <button id="feedback-close-btn" class="feedback-close">&times;</button>
+            </div>
+            <div class="feedback-body">
+                <div class="rating-section">
+                    <div class="emoji-rating">
+                        <button class="emoji-btn" data-rating="1" title="Very dissatisfied">😞</button>
+                        <button class="emoji-btn" data-rating="2" title="Dissatisfied">😐</button>
+                        <button class="emoji-btn" data-rating="3" title="Neutral">🙂</button>
+                        <button class="emoji-btn" data-rating="4" title="Satisfied">😊</button>
+                        <button class="emoji-btn" data-rating="5" title="Very satisfied">😍</button>
+                    </div>
+                </div>
+                <div class="feedback-form">
+                    <textarea id="feedback-text" placeholder="Any suggestions for improvement?" rows="4"></textarea>
+                    <button id="feedback-submit-btn" class="btn-3d feedback-submit-btn">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+        <div class="modal-content">
+            <div class="modal-left-column">
+                <div id="edit-canvas-container">
+                    <canvas id="edit-canvas" tabindex="0" aria-label="Panel editing canvas"></canvas>
+                </div>
+                <!-- Main Canvas Preview - positioned below the panel canvas -->
+                <div id="edit-modal-preview" class="expanded" aria-live="polite">
+                    <div class="edit-preview-header">
+                        <h4 id="edit-modal-title">Main Canvas Preview</h4>
+                        <button id="edit-preview-toggle-btn" class="preview-toggle" aria-label="Toggle preview">
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </button>
+                    </div>
+                    <div class="edit-preview-content">
+                        <canvas id="edit-modal-mini-preview-canvas" width="300" height="200"></canvas>
+                        <div class="edit-preview-info">
+                            Shows how edits will appear in the main figure
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="edit-controls" id="edit-controls-panel" aria-label="Edit Panel Controls">
+                <div class="resize-handle" id="edit-controls-resize-handle" tabindex="0" aria-label="Resize side panel"></div>
+                <button id="collapse-edit-controls" class="collapse-panel-btn" aria-label="Collapse side panel" tabindex="0">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+                <div class="edit-controls-header">
+                    <div class="modal-actions-top sticky-actions">
+                        <button id="cancel-edit-btn" aria-label="Cancel editing (Esc)">Cancel</button>
+                        <button id="apply-edit-btn" aria-label="Apply changes (Ctrl+Enter)">Apply Changes</button>
+                    </div>
+                </div>
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3>Layout Behavior</h3>
+                    </div>
+                    <div class="card-content">
+                        <p class="small-text">Define how many grid cells this panel should occupy (span). This only affects 2x2, 3x3, and 4xN grid layouts. Current layout: <span id="current-layout-indicator">N/A</span></p>
+                        <div style="display: flex; gap: 15px; margin-top: 10px;">
+                            <div class="control-item" style="flex: 1;">
+                                <label for="panel-colspan-input">Column Span:</label>
+                                <input type="number" id="panel-colspan-input" value="1" min="1" max="10">
+                            </div>
+                            <div class="control-item" style="flex: 1;">
+                                <label for="panel-rowspan-input">Row Span:</label>
+                                <input type="number" id="panel-rowspan-input" value="1" min="1" max="10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3>Annotations</h3>
+                    </div>
+                    <div class="card-content">
+                        <div id="annotation-tools" class="tool-palette" role="toolbar" aria-label="Annotation tools">
+                            <button class="tool-btn active-tool" data-tool="crop" title="Crop" aria-label="Crop tool"><span class="material-symbols-outlined">crop</span></button>
+                            <button class="tool-btn" data-tool="text" title="Add Text" aria-label="Text tool"><span class="material-symbols-outlined">title</span></button>
+                            <button class="tool-btn" data-tool="arrow" title="Draw Arrow" aria-label="Arrow tool"><span class="material-symbols-outlined">arrow_outward</span></button>
+                            <button class="tool-btn" data-tool="rect" title="Draw Rectangle" aria-label="Rectangle tool"><span class="material-symbols-outlined">check_box_outline_blank</span></button>
+                        </div>
+                        <div class="annotation-options hidden-by-default" id="annotation-styling-options">
+                            <div class="control-item" id="annotation-color-control">
+                                <label for="annotation-color">Color:</label>
+                                <input type="color" id="annotation-color" value="#FF0000">
+                            </div>
+                            <div class="control-item" id="annotation-linewidth-control">
+                                <label for="annotation-linewidth">Line Width:</label>
+                                <input type="number" id="annotation-linewidth" value="2" min="1" max="50">
+                            </div>
+                            <div class="control-item" id="annotation-fontsize-control">
+                                <label for="annotation-fontsize">Font Size:</label>
+                                <input type="number" id="annotation-fontsize" value="16" min="8" max="100">
+                            </div>
+                            <div class="control-item" id="annotation-font-family-control">
+                                <label for="annotation-font-family">Font Family:</label>
+                                <select id="annotation-font-family">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Helvetica">Helvetica</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Verdana">Verdana</option>
+                                </select>
+                            </div>
+                            <div class="control-item" id="annotation-font-style-control">
+                                <label>Font Style:</label>
+                                <div style="display: flex; gap: 5px;">
+                                    <button type="button" id="annotation-bold-btn" class="font-style-btn" title="Bold" aria-label="Bold">B</button>
+                                    <button type="button" id="annotation-italic-btn" class="font-style-btn" title="Italic" aria-label="Italic">I</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="button-group" style="margin-top: 10px;">
+                            <button id="reset-crop-btn">Reset Crop</button>
+                            <button id="clear-annotations-btn">Clear All Annotations</button>
+                        </div>
+                        <div class="button-group" style="margin-top: 10px;">
+                            <button id="undo-annotation-btn" disabled>Undo Annotation</button>
+                            <button id="redo-annotation-btn" disabled>Redo Annotation</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3>Rotate & Adjust</h3>
+                    </div>
+                    <div class="card-content">
+                        <p class="small-text">Use the buttons below to reset individual adjustments.</p>
+                        <label for="brightness-slider">Brightness: <span id="brightness-value">100%</span></label>
+                        <input type="range" id="brightness-slider" min="0" max="200" value="100">
+                        <button id="reset-brightness-btn" style="width:100%; margin-bottom:10px;">Reset Brightness</button>
+                        <label for="contrast-slider">Contrast: <span id="contrast-value">100%</span></label>
+                        <input type="range" id="contrast-slider" min="0" max="200" value="100">
+                        <button id="reset-contrast-btn" style="width:100%; margin-bottom:10px;">Reset Contrast</button>
+                        <label for="rotate-slider">Rotate: <span id="rotate-value">0°</span></label>
+                        <input type="range" id="rotate-slider" min="-180" max="180" value="0">
+                        <button id="reset-rotate-btn" style="width:100%; margin-bottom:10px;">Reset Rotation</button>
+                        <button id="greyscale-btn">Toggle Greyscale</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Layout Loading Modal -->
+    <div id="smart-layout-loading-modal" class="smart-layout-modal-overlay hidden">
+        <div class="smart-layout-modal-content">
+            <div class="smart-layout-spinner"></div>
+            <h3 class="smart-layout-main-message">Computing optimal layout...</h3>
+            <p class="smart-layout-sub-message">Applying Smart Layout for your panels</p>
+        </div>
+    </div>
+
+    <!-- Export Progress Modal -->
+    <div id="export-progress-modal" class="export-progress-modal-overlay hidden">
+        <div class="export-progress-modal-content">
+            <div class="export-progress-header">
+                <div class="export-progress-icon">
+                    <span class="material-symbols-outlined">download</span>
+                </div>
+                <h3 class="export-progress-title">Exporting Figure</h3>
+                <button id="export-progress-close" class="export-progress-close-btn" aria-label="Close">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="export-progress-body">
+                <div class="export-progress-stage">
+                    <span class="export-stage-icon">
+                        <span class="material-symbols-outlined">image</span>
+                    </span>
+                    <div class="export-stage-info">
+                        <span class="export-stage-text" id="export-stage-text">Processing panels...</span>
+                        <span class="export-stage-detail" id="export-stage-detail">Preparing high-resolution images</span>
+                    </div>
+                </div>
+                
+                <div class="export-progress-bar-container">
+                    <div class="export-progress-bar">
+                        <div class="export-progress-fill" id="export-progress-fill"></div>
+                    </div>
+                    <div class="export-progress-text">
+                        <span id="export-progress-percentage">0%</span>
+                        <span id="export-progress-time">Estimated time: Calculating...</span>
+                    </div>
+                </div>
+                
+                <div class="export-progress-details">
+                    <div class="export-detail-item">
+                        <span class="export-detail-label">Format:</span>
+                        <span class="export-detail-value" id="export-format-value">JPEG</span>
+                    </div>
+                    <div class="export-detail-item">
+                        <span class="export-detail-label">Resolution:</span>
+                        <span class="export-detail-value" id="export-resolution-value">600 DPI</span>
+                    </div>
+                    <div class="export-detail-item">
+                        <span class="export-detail-label">Panels:</span>
+                        <span class="export-detail-value" id="export-panels-value">7</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="export-progress-actions">
+                <button id="export-progress-cancel" class="export-progress-cancel-btn">
+                    <span class="material-symbols-outlined">cancel</span>
+                    Cancel Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Progress Modal (reuses export modal styles) -->
+    <div id="upload-progress-modal" class="export-progress-modal-overlay hidden">
+        <div class="export-progress-modal-content">
+            <div class="export-progress-header">
+                <div class="export-progress-icon">
+                    <span class="material-symbols-outlined">cloud_upload</span>
+                </div>
+                <h3 class="export-progress-title">Uploading Panels</h3>
+            </div>
+
+            <div class="export-progress-body">
+                <div class="export-progress-stage">
+                    <span class="export-stage-icon">
+                        <span class="material-symbols-outlined">file_upload</span>
+                    </span>
+                    <div class="export-stage-info">
+                        <span class="export-stage-text" id="upload-stage-text">Preparing upload...</span>
+                        <span class="export-stage-detail" id="upload-stage-detail">Reading files</span>
+                    </div>
+                </div>
+
+                <div class="export-progress-bar-container">
+                    <div class="export-progress-bar">
+                        <div class="export-progress-fill" id="upload-progress-fill"></div>
+                    </div>
+                    <div class="export-progress-text">
+                        <span id="upload-progress-percentage">0%</span>
+                        <span id="upload-progress-time">Calculating...</span>
+                    </div>
+                </div>
+
+                <div class="export-progress-details">
+                    <div class="export-detail-item">
+                        <span class="export-detail-label">Files:</span>
+                        <span class="export-detail-value" id="upload-files-count">0</span>
+                    </div>
+                    <div class="export-detail-item">
+                        <span class="export-detail-label">Total Size:</span>
+                        <span class="export-detail-value" id="upload-total-size">—</span>
+                    </div>
+                    <div class="export-detail-item" style="grid-column: 1 / -1;">
+                        <span class="export-detail-label">Current:</span>
+                        <span class="export-detail-value" id="upload-current-index">0/0</span>
+                        <span class="export-detail-value" id="upload-current-file" style="margin-left:6px; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom;">—</span>
+                        <span class="export-detail-value" id="upload-current-size" style="margin-left:6px;">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="export-progress-actions" style="display:flex; gap:10px; justify-content:center;">
+                <button id="upload-progress-cancel" class="export-progress-cancel-btn">
+                    <span class="material-symbols-outlined">cancel</span>
+                    Cancel Upload
+                </button>
+                <button id="upload-progress-force-close" class="export-progress-cancel-btn hidden" title="Force close and restore previous state">
+                    Force Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
