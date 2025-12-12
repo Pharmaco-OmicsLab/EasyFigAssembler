@@ -529,7 +529,9 @@ function initializeExportListeners() {
             setLoadingState(exportFigureBtn, true);
 
             let exportSuccess = false;
-            if (state.selectedExportFormat === 'png' || state.selectedExportFormat === 'jpeg') {
+            if (state.selectedExportFormat === 'svg') {
+                exportSuccess = await api.exportSVG(exportFigureBtn);
+            } else if (state.selectedExportFormat === 'png' || state.selectedExportFormat === 'jpeg') {
                 exportSuccess = await api.exportHighResClientSide(state.selectedExportFormat, exportFigureBtn);
             } else if (state.selectedExportFormat === 'pdf' || state.selectedExportFormat === 'tiff') {
                 exportSuccess = await api.exportWithBackend(state.selectedExportFormat, exportFigureBtn);

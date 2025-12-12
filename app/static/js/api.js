@@ -731,3 +731,28 @@ export async function submitFeedback() {
         setLoadingState(feedbackSubmitBtn, false);
     }
 }
+
+import { downloadSVG } from './svgExport.js';
+
+/**
+ * Export figure as SVG (vector format)
+ */
+export async function exportSVG(button) {
+    if (state.activeFigureIndex === -1 || state.project.figures[state.activeFigureIndex].panels.length === 0) {
+        alert("Please upload panels first.");
+        return false;
+    }
+    
+    setLoadingState(button, true);
+    
+    try {
+        await downloadSVG();
+        return true;
+    } catch (error) {
+        console.error('SVG export error:', error);
+        alert(`Failed to export SVG: ${error.message}`);
+        return false;
+    } finally {
+        setLoadingState(button, false);
+    }
+}

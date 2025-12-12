@@ -1382,6 +1382,7 @@ button:disabled {
 .export-option-card .icon-pdf { background-color: #dc3545; }
 .export-option-card .icon-png { background-color: #28a745; }
 .export-option-card .icon-jpeg { background-color: #fd7e14; }
+.export-option-card .icon-svg { background-color: #6f42c1; }
 
 .export-text { line-height: 1.3; }
 .export-title { font-weight: bold; }
